@@ -12,6 +12,10 @@ The `wotstats` Python script does the following after invocation:
 * saves them to the data file,
 * generates a *svg* plot that shows stats changing in time.
 
+## Requirements
+
+Python >= 3.8 and packages from [requirements.txt](requirements.txt).
+
 ## Usage
 
 ```text
