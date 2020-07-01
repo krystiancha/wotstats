@@ -12,6 +12,16 @@ The `wotstats` Python script does the following after invocation:
 * saves them to the data file,
 * generates a *svg* plot that shows stats changing in time.
 
+This script should be run periodically to update the plot using the newest data.
+If you want fairly frequent updates, run it hourly.
+You can use the provided systemd unit and timer.
+
+Keep in mind that the WoT API does not update its data instantly.
+After you play a battle, you might have to wait a few hours for the changes to reach the WoT API.
+
+If you want the plots available as a webpage, you can use the provided html and css.
+If you choose to, configure the script to generate plots in the `img` directory by setting the `plotdir` parameter.
+
 ## Requirements
 
 Python >= 3.8 and packages from [requirements.txt](requirements.txt).

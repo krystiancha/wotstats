@@ -1,0 +1,12 @@
+[Unit]
+Description=Update WoT stats plot
+
+[Service]
+User=wotstats
+Type=oneshot
+ExecStart=/usr/local/bin/wotstats \
+    --application-id d1e3a3d7b1e3e3f7d1e3a3d7b1e3e3f7 \
+    --clean \
+    /var/local/wotstats.csv \
+    /srv/http/wotstats/img \
+    --account 133773311 733113377
