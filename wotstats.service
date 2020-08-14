@@ -1,12 +1,15 @@
 [Unit]
-Description=Update WoT stats plot
+Description=Update World of Tanks statistics
 
 [Service]
 User=wotstats
 Type=oneshot
-ExecStart=/usr/local/bin/wotstats \
-    --application-id d1e3a3d7b1e3e3f7d1e3a3d7b1e3e3f7 \
-    --clean \
-    /var/local/wotstats.csv \
-    /srv/http/wotstats/img \
-    --account 133773311 733113377
+WorkingDirectory=/usr/local/share/wotstats2
+ExecStart=python -m wotstats.scrape \
+    --realm eu \
+    --app-id d1e3a3d7b1e3e3f7d1e3a3d7b1e3e3f7 \
+    --account-id 133773311 \
+    --account-id 733113377 \
+    --output /var/local/wotstats2.csv \
+    --log-level INFO
+
