@@ -16,7 +16,7 @@ parser.add_argument("--account-id", action="append", required=True, dest="accoun
 
 
 def main(args=None):
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     args = parser.parse_args(args)
 
     info = account_info(Realm[args.realm], args.application_id, args.account_ids)
@@ -27,14 +27,16 @@ def main(args=None):
     ]
 
     with sa.create_engine("postgresql://wotstats@localhost/wotstats").connect() as conn:
-        try:
-            conn.execute(
-                statistics.insert().values(tuples).compile(dialect=postgresql.dialect())
-            )
-        except IntegrityError as e:
-            if not isinstance(e.orig, psycopg2.errors.UniqueViolation):
-                raise e from e
-            pass
+        for row in tuples:
+            try:
+                conn.execute(
+                    statistics.insert().values(row).compile(dialect=postgresql.dialect())
+                )
+                logging.info("Updated table")
+            except IntegrityError as e:
+                if not isinstance(e.orig, psycopg2.errors.UniqueViolation):
+                    raise e from e
+                logging.info(f"No new data: {e}")
 
 
 if __name__ == "__main__":
