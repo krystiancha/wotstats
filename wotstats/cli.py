@@ -7,7 +7,7 @@ from sqlalchemy.dialects import postgresql
 from sqlalchemy.exc import IntegrityError
 
 from wotstats.api import Realm, account_info
-from wotstats.sql import fields, statistics
+from wotstats.sql import statistics
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--realm", choices=Realm.__members__, required=True)
@@ -21,22 +21,21 @@ def main(args=None):
 
     info = account_info(Realm[args.realm], args.application_id, args.account_ids)
 
-    tuples = [
-        (account_id, *(data[key] for key in fields))
-        for account_id, data in info.items()
-    ]
+    tuples = [tuple(data[x.name] for x in statistics.columns) for data in info.values()]
 
     with sa.create_engine("postgresql://wotstats@localhost/wotstats").connect() as conn:
         for row in tuples:
             try:
                 conn.execute(
-                    statistics.insert().values(row).compile(dialect=postgresql.dialect())
+                    statistics.insert()
+                    .values(row)
+                    .compile(dialect=postgresql.dialect())
                 )
-                logging.info("Updated table")
+                logging.info("Record added")
             except IntegrityError as e:
                 if not isinstance(e.orig, psycopg2.errors.UniqueViolation):
                     raise e from e
-                logging.info(f"No new data: {e}")
+                logging.info(f"Record exists, skipping")
 
 
 if __name__ == "__main__":

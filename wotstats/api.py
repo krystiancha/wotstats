@@ -7,6 +7,7 @@ from urllib.parse import urljoin
 from urllib.request import urlopen
 
 FIELDS = [
+    "account_id",
     "last_battle_time",
     "updated_at",
     "global_rating",

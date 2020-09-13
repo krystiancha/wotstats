@@ -115,7 +115,7 @@ def split_players(df, only_recent=False):
         nickname: df[df["nickname"] == nickname].drop("nickname", axis="columns")
         for nickname in df["nickname"].unique()
     }
-    
+
     for key in dfs:
         dfs[key].index = pd.DatetimeIndex(dfs[key].index.get_level_values(0))
 
@@ -185,7 +185,8 @@ def plot(dfs, filename, updated_at):
         for nickname, stats_df in dfs.items():
             if (stats_df[name] != 0).any(axis="rows"):
                 ax.plot(
-                    mdates.date2num(pd.to_datetime(stats_df[name].index)), stats_df[name].values
+                    mdates.date2num(pd.to_datetime(stats_df[name].index)),
+                    stats_df[name].values,
                 )
         for nickname, stats_df in dfs.items():
             if (stats_df[name] != 0).any(axis="rows"):
@@ -235,7 +236,10 @@ def plot(dfs, filename, updated_at):
 
     fig.tight_layout(pad=1.5)
     fig.text(
-        0.001, 0.001, f"Updated: {updated_at} UTC", color=rcParams["axes.labelcolor"],
+        0.001,
+        0.001,
+        f"Updated: {updated_at} UTC",
+        color=rcParams["axes.labelcolor"],
     )
 
     fig.savefig(
