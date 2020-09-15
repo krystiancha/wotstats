@@ -1,6 +1,5 @@
 import json
-from collections.abc import MutableMapping
-from datetime import datetime
+import logging
 from enum import Enum
 from typing import Sequence
 from urllib.parse import urljoin
@@ -59,33 +58,6 @@ class Realm(Enum):
     ASIA = "https://api.worldoftanks.asia/wot/"
 
 
-def flatten(d, parent_key="", sep="_"):
-    items = []
-    for k, v in d.items():
-        new_key = parent_key + sep + k if parent_key else k
-        if isinstance(v, MutableMapping):
-            items.extend(flatten(v, new_key, sep=sep).items())
-        else:
-            items.append((new_key, v))
-    return dict(items)
-
-
-def parse(body):
-    raw = json.load(body)
-
-    for account, data in raw["data"].items():
-        for field in TIME_FIELDS:
-            data[field] = datetime.utcfromtimestamp(data[field])
-
-    return {
-        account: {
-            key.replace("statistics.", "").replace("random.", ""): value
-            for key, value in flatten(data, sep=".").items()
-        }
-        for account, data in raw["data"].items()
-    }
-
-
 def account_info(realm: Realm, application_id: str, account_ids: Sequence[str]):
     data = "&".join(
         [
@@ -102,4 +74,13 @@ def account_info(realm: Realm, application_id: str, account_ids: Sequence[str]):
         url=urljoin(realm.value, "account/info/"),
         data=data.encode(),
     ) as f:
-        return parse(f)
+        response = json.load(f)
+        status = response.pop("status")
+
+        if status != "ok":
+            error = response.pop("error")
+            raise ValueError(f"Error {error['code']}: {error['message']}")
+
+        data = response.pop("data")
+        logging.debug(f"/account/info/: {response}")
+        return data
