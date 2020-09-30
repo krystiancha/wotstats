@@ -3,12 +3,15 @@ import configparser
 import logging
 import sys
 
+import matplotlib.pyplot as plt
+import pandas as pd
 import psycopg2.errors
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.exc import IntegrityError
 
 from wotstats.api import TIME_FIELDS, Realm, account_info
+from wotstats.plotting import create_plot
 from wotstats.sql import statistics
 from wotstats.utils import flatten, timestamps_to_datetime
 
@@ -18,6 +21,7 @@ config.read_dict(
         "db": {"url": "postgresql://wotstats@localhost/wotstats"},
         "api": {"realm": "EU", "application-id": ""},
         "accounts": {},
+        "plots": {},
         "logging": {"log-level": "INFO"},
     }
 )
@@ -93,6 +97,29 @@ def main(args=None):
                     if not isinstance(e.orig, psycopg2.errors.UniqueViolation):
                         raise e from e
                     logging.info(f"Skipping, record exists")
+
+            if config["plots"]:
+                df = pd.read_sql(
+                    "SELECT * from statistics ORDER BY updated_at",
+                    conn,
+                    index_col=["account_id", "updated_at"],
+                )
+                plt.style.use("Solarize_Light2")
+                for path, interval_str in config["plots"].items():
+                    if interval_str:
+                        figure = create_plot(
+                            df[
+                                df.index.get_level_values(1)
+                                > (
+                                    pd.Timestamp.now(tz="UTC")
+                                    - pd.Timedelta(interval_str)
+                                )
+                            ]
+                        )
+                    else:
+                        figure = create_plot(df)
+                    figure.savefig(path)
+
     except sa.exc.OperationalError as e:
         logging.critical(f"Invalid database URL: {config['db']['url']} ({e})")
         sys.exit(1)
