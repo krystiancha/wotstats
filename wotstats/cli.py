@@ -101,6 +101,7 @@ def main(args=None):
                     logging.info(f"Skipping, record exists")
 
             if config["plots"] and changed:
+                logging.info("Change detected, updating plots")
                 df = pd.read_sql(
                     "SELECT * from statistics ORDER BY updated_at",
                     conn,
@@ -120,6 +121,7 @@ def main(args=None):
                         )
                     else:
                         figure = create_plot(df)
+                    logging.info(f"Saving {path}")
                     figure.savefig(path)
 
     except sa.exc.OperationalError as e:
