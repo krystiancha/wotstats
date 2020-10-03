@@ -22,7 +22,7 @@ PLOTS = [
     Plot("Average Assisted Damage", "avg_damage_assisted"),
     Plot("Average Blocked Damage", "avg_damage_blocked"),
     Plot("Average Damage", "damage_dealt", "battles"),
-    Plot("Average Assisted Damage / Track", "avg_damage_assisted_track"),
+    Plot("Average Experience", "xp", "battles"),
     Plot("Victories", "wins", "battles", percent=True),
     Plot("Average Assisted Damage / Radio", "avg_damage_assisted_radio"),
     Plot(
