@@ -82,6 +82,7 @@ def main(args=None):
 
     try:
         with sa.create_engine(config["db"]["url"]).connect() as conn:
+            changed = False
             for row in rows:
                 logging.info(
                     f"Attempting insert {row['nickname']} @ {row['updated_at']}"
@@ -92,13 +93,14 @@ def main(args=None):
                         .values(row)
                         .compile(dialect=postgresql.dialect())
                     )
+                    changed = True
                     logging.info("Insert successful")
                 except IntegrityError as e:
                     if not isinstance(e.orig, psycopg2.errors.UniqueViolation):
                         raise e from e
                     logging.info(f"Skipping, record exists")
 
-            if config["plots"]:
+            if config["plots"] and changed:
                 df = pd.read_sql(
                     "SELECT * from statistics ORDER BY updated_at",
                     conn,
