@@ -2,7 +2,7 @@
 
 Self-hosted World of Tanks player statistics
 
-[DEMO](https://wotstats.ken.krystianch.com/)
+[DEMO](https://wotstats.krystianch.com/)
 
 ## Description
 
